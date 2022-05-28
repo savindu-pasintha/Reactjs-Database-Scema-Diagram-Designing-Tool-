@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Draggable, { DraggableCore } from 'react-draggable'; // Both at the same time
+import './D.css';
 
 export default function D() {
   const [tbl, setTbl] = useState('');
@@ -29,7 +30,7 @@ export default function D() {
           height: '30px',
           margin: '0px',
         }}
-        onClick={() => { alert(columdata); }}
+        onClick={() => { alert(columdata?.colum); }}
       ><p>{columdata?.colum}......................{columdata?.type}</p></button>
     </div>
   </>);
@@ -52,7 +53,6 @@ export default function D() {
     var arr = tblNameList;
     arr.push(tableName);
     setTblNameList(arr);
-    console.log('tblNameList', tblNameList);
     setChange(Math.random(200));
   }
   //Left side editable box
@@ -85,15 +85,28 @@ export default function D() {
     setChange(Math.random(200));
     //setColData({ ...colData, colum: e.target.value });
   }
+  const styles = {
+    input: {
+      width: '30px'
+    }
+  }
   const sampleColume = (colum_data) => (
-    <div style={{ paddingTop: "5px", paddingBottom: "2px" }}>
+    <div
+      className='sampleColume'
+      style={{
+        paddingTop: "5px", paddingBottom: "2px",
+        display: 'flex', float: 'inherit'
+      }}>
       <div>
         <input
+          style={styles.input}
           value={colum_data?.colum}
-          onChange={(e) => { changeColumValues(colum_data?.colum, e.target.value); }} placeholder="Colum name" />
+          onChange={(e) => { changeColumValues(colum_data?.colum, e.target.value); }}
+          placeholder="Colum name" />
       </div>
       <div>
         <input
+          style={styles.input}
           value={colum_data?.type}
           onChange={(e) => {
             setColData({ ...colData, type: e.target.value });
@@ -110,6 +123,7 @@ export default function D() {
       </div>
       <div>
         <input
+          style={styles.input}
           value={colum_data?.N}
           onChange={(e) => {
             setColData({ ...colData, N: e.target.value });
@@ -123,6 +137,7 @@ export default function D() {
       </div>
       <div>
         <input
+          style={styles.input}
           value={colum_data?.indenty}
           onChange={(e) => {
             setColData({ ...colData, indenty: e.target.value });
@@ -136,6 +151,7 @@ export default function D() {
       </div>
       <div>
         <input
+          style={styles.input}
           value={colum_data?.auto}
           onChange={(e) => {
             setColData({ ...colData, auto: e.target.value });
@@ -160,8 +176,18 @@ export default function D() {
     setChange(Math.random(200));
   }
   const tableCols = (item) => (
-    <div>
-      <div>
+    <div
+      style={{
+        padding: '10px',
+      }}
+    >
+      <div
+        style={{
+          height: 'auto', padding: '10px',
+          display: 'block', border: '1px solid black'
+
+        }}
+      >
         <div>
           <h>Table Name : {item}</h>{' '}
           <button
@@ -178,44 +204,50 @@ export default function D() {
     </div>
   );
   //tblNameList, addColumArr, 
-  useEffect(() => { console.log("useEffect"); }, [change]);
+  useEffect(() => { }, [change]);
 
   return (
     <div style={{ width: '100%', display: 'block' }}>
       <div style={{ minHeight: window.innerHeight, width: '100%', display: 'flex' }}>
-        <div style={{ width: '50%', display: 'flex', backgroundColor: "white" }}>
-          {/** Table Add */}
-          <div style={{ display: 'block' }}>
-            <input onChange={(event) => {
-              setTblName(event.target.value);
-              //setChange(true ? false : true); 
-            }}
-              placeholder="table 1" />
-            <button onClick={() => { addTable(tblName); }}>Add Table</button>
-          </div>
-          {/** Table List Colums */}
-          <br />
-          <div style={{ display: 'block' }}>
-            {
-              <>
-                {
-                  tblNameList.map((item) => {
-                    return (
-                      <div
-                        style={{
-                          height: 'auto', padding: '10px',
-                          display: 'block', border: '1px solid black'
-                        }}>
-                        <div> {tableCols(item)}</div>
-                      </div>)
-                  })
 
-                }
-              </>
-            }
+        {/**Right Table boxed */}
+        <div style={{ width: '50%', display: 'flex', backgroundColor: "white" }}>
+          <div>
+            {/** Table Add */}
+            <div style={{ display: 'block' }}>
+              <input onChange={(event) => {
+                setTblName(event.target.value);
+                //setChange(true ? false : true); 
+              }}
+                placeholder="table 1" />
+              <button onClick={() => { addTable(tblName); }}>Add Table</button>
+            </div>
+
+            {/** Table List Colums */}
+            <br />
+            <div style={{ display: 'block', }}>
+              {
+                <>
+                  {
+                    tblNameList.map((item) => {
+                      return (
+                        <div key={item}>
+                          <div>
+                            <div> {tableCols(item)}</div>
+                          </div>
+                        </div>
+                      )
+                    })
+
+                  }
+                </>
+              }
+            </div>
           </div>
         </div>
 
+
+        {/** Left Diagram boxes */}
         <div style={{ width: '50%', display: 'flex', backgroundColor: "white" }}>
           <div>
             {
