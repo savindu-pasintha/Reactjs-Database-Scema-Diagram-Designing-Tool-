@@ -14,7 +14,8 @@ export default function D() {
     colum: 'A', type: 'varchar', N: 'Non', indenty: 'primarykey', auto: 'none'
   },]);
   const [change, setChange] = useState('1');
-  //{table:name,colums:{}}
+  //const [wholeTblData, setWholeTblData] = useState([{ 'tableName': [{ colum: '', type: '', N: '', indenty: '', auto: '', col_Id: '' }] }]);
+  const [wholeTblData, setWholeTblData] = useState([]);
 
   //Right side Diagram onclick ->load the table to screen
   const tblDiagramSampleColume = (columdata) => (<>
@@ -31,7 +32,17 @@ export default function D() {
           margin: '0px',
         }}
         onClick={() => { alert(columdata?.colum); }}
-      ><p>{columdata?.colum}......................{columdata?.type}</p></button>
+      >
+        <p>{columdata?.colum}
+          {" "}
+          {columdata?.type}
+          {" "}
+          {columdata?.indenty}
+          {" "}
+          {columdata?.auto}
+          {" "}
+          {columdata?.N}</p>
+      </button>
     </div>
   </>);
   const tblDiagram = (itemTblName) =>
@@ -44,25 +55,70 @@ export default function D() {
       <h>Table Name : {itemTblName}</h>
       <>
         {
-          addColumArr.map((columdata) => tblDiagramSampleColume(columdata))
+          //addColumArr.map((columdata) => tblDiagramSampleColume(columdata))  
+        }
+      </>
+      <>
+        {
+          accessSpecificTableColums(itemTblName).map((columdata) => tblDiagramSampleColume(columdata))
         }
       </>
     </div>
     ;
   const addTable = (tableName) => {
-    var arr = tblNameList;
-    arr.push(tableName);
-    setTblNameList(arr);
-    setChange(Math.random(200));
+    if (tableName != "" && tableName != null) {
+      if (tblNameList.length > 0) {
+        //try to enter different table ename
+        if (tblNameList.indexOf(tableName) == -1) {// true = not contain table name
+          var arr = tblNameList;
+          arr.push(tableName);
+          setTblNameList(arr);
+          console.log('if Add tblNameList: ', tblNameList);
+
+          var obj = {};
+          obj[tableName] = [{ colum: `col 1`, type: '', N: '', indenty: '', auto: '', col_id: (Math.random(10000)) }];
+          var ar = wholeTblData;
+          ar.push(obj);
+          setWholeTblData(ar);
+          console.log('if whole Table data', wholeTblData);
+
+          setChange(Math.random(200));
+        } else {
+          alert("Please enter Different table name !");
+        }
+      }
+      else {
+        var arr = [];
+        arr.push(tableName);
+        setTblNameList(arr);
+        console.log('else Add tblNameList: ', tblNameList);
+
+        //whole Data with Tables
+        var obj = {};
+        obj[tableName] = [{ colum: `col 1`, type: '', N: '', indenty: '', auto: '', col_id: (Math.random(10000)) }];
+        var ar = [];
+        ar.push(obj);
+        setWholeTblData(ar);
+        console.log('else whole Table data', wholeTblData);
+
+        setChange(Math.random(200));
+      }
+
+    } else {
+      alert("Please enter table name !");
+    }
+
   }
   //Left side editable box
   const removeLeftTableWhenClick = (table) => {
     var arr = tblNameList.filter(function (ele) { return ele != table; });
     setTblNameList(arr);
     alert(`Delete Table : ${table}`);
+    console.log('Remove tblNameList: ', tblNameList);
     setChange(Math.random(200));
   }
-  const removeLeftColumWhenClick = (col) => {
+  const removeLeftColumWhenClick = (tableName, col) => {
+    // console.log(`Delete Colum ${col?.colum} : `, addColumArr);
     var arr = addColumArr.filter(function (ele) {
       var { colum, type, N, indenty, auto } = ele;
       if (colum != col?.colum) {
@@ -70,27 +126,78 @@ export default function D() {
       }
     });
     setAddColumArr(arr);
+
+    // wholeTbldata colum remove
+    var arWholeTblData = wholeTblData;
+    var clickedTableDataObject = arWholeTblData.find((ele) => {
+      return ele[tableName];
+    });
+    //console.log("clickedTableDataObject : ", clickedTableDataObject);
+    var arrColums = clickedTableDataObject[`${tableName}`];//{tbn:[]}
+    var arrNew = arrColums.filter((ele) => ele.colum != col.colum);
+    var TO = {};
+    TO[`${tableName}`] = arrNew;
+    var currentTableNameDataIndex = arWholeTblData.findIndex((ele) => {
+      return ele[tableName];
+    });
+    arWholeTblData[currentTableNameDataIndex] = TO;
+    setWholeTblData(arWholeTblData);
+    //console.log(arWholeTblData);
     alert(`Delete Colum : ${col?.colum}`);
+
     setChange(Math.random(200));
   }
-  const changeColumValues = (colum_name, value) => {
-    var arr = addColumArr;
-    arr = addColumArr.filter((ele) => {
-      if (colum_name == ele.colum) {
-        ele.colum = value;
-        return ele;
-      }
-    });
-    // setAddColumArr(arr);
-    setChange(Math.random(200));
-    //setColData({ ...colData, colum: e.target.value });
+  const changeColumValues = (tableName, colum_name, value, inputType) => {
+    if (true) {
+      var arr = addColumArr;
+      arr = addColumArr.filter((ele) => {
+        if (colum_name == ele.colum) {
+          ele.colum = value;
+          return ele;
+        }
+      });
+      // setAddColumArr(arr);
+      //console.log(`Change Colum ${colum_name + ":" + value}`, "addColumArr: ", addColumArr, "arr: ", arr);
+
+      // wholeTbldata colum remove
+      var arWholeTblData = wholeTblData;
+      var clickedTableDataObject = arWholeTblData.find((ele) => {
+        return ele[tableName];
+      });
+      //console.log("clickedTableDataObject : ", clickedTableDataObject);
+      var arrColums = clickedTableDataObject[`${tableName}`];//{tbn:[]}
+      var columObjectIndex = arrColums.findIndex((ele) => {
+        if (ele.colum == colum_name) {
+          ele[colum_name] = value;
+          return ele;
+        }
+      });
+      // console.log(arrColums[columObjectIndex]);
+      if (inputType == 'type') { arrColums[columObjectIndex].type = value; }
+      if (inputType == 'N') { arrColums[columObjectIndex].N = value; }
+      if (inputType == 'auto') { arrColums[columObjectIndex].auto = value; }
+      if (inputType == 'colum') { arrColums[columObjectIndex].colum = value; }
+      if (inputType == 'identity') { arrColums[columObjectIndex].indenty = value; }
+
+      var TO = {};
+      TO[`${tableName}`] = arrColums;
+      var currentTableNameDataIndex = arWholeTblData.findIndex((ele) => {
+        return ele[tableName];
+      });
+      arWholeTblData[currentTableNameDataIndex] = TO;
+      setWholeTblData(arWholeTblData);
+
+      setChange(Math.random(200));
+    } else {
+      console.log("Please enter values for colum");
+    }
   }
   const styles = {
     input: {
       width: '30px'
     }
   }
-  const sampleColume = (colum_data) => (
+  const sampleColume = (tableName, colum_data) => (
     <div
       className='sampleColume'
       style={{
@@ -101,7 +208,7 @@ export default function D() {
         <input
           style={styles.input}
           value={colum_data?.colum}
-          onChange={(e) => { changeColumValues(colum_data?.colum, e.target.value); }}
+          onChange={(e) => { changeColumValues(tableName, colum_data?.colum, e.target.value, 'colum'); }}
           placeholder="Colum name" />
       </div>
       <div>
@@ -109,9 +216,10 @@ export default function D() {
           style={styles.input}
           value={colum_data?.type}
           onChange={(e) => {
-            setColData({ ...colData, type: e.target.value });
+            changeColumValues(tableName, colum_data?.colum, e.target.value, 'type');
+            // setColData({ ...colData, type: e.target.value });
           }} placeholder="Data type"
-          list="browsers" name="browser" id="browser"
+        //list="browsers" name="browser" id="browser"
         />
         <datalist id="browsers">
           <option value="Edge" />
@@ -126,9 +234,10 @@ export default function D() {
           style={styles.input}
           value={colum_data?.N}
           onChange={(e) => {
-            setColData({ ...colData, N: e.target.value });
+            changeColumValues(tableName, colum_data?.colum, e.target.value, 'N');
+            //  setColData({ ...colData, N: e.target.value });
           }} placeholder="N/NN"
-          list="nn" name="nn" id="nn"
+        //list="nn" name="nn" id="nn"
         />
         <datalist id="nn">
           <option value="null" />
@@ -140,9 +249,10 @@ export default function D() {
           style={styles.input}
           value={colum_data?.indenty}
           onChange={(e) => {
-            setColData({ ...colData, indenty: e.target.value });
+            changeColumValues(tableName, colum_data?.colum, e.target.value, 'identity');
+            // setColData({ ...colData, indenty: e.target.value });
           }} placeholder="Identity"
-          list="pk" name="pk" id="pk"
+        //list="pk" name="pk" id="pk"
         />
         <datalist id="pk">
           <option value="primary" />
@@ -154,9 +264,10 @@ export default function D() {
           style={styles.input}
           value={colum_data?.auto}
           onChange={(e) => {
-            setColData({ ...colData, auto: e.target.value });
+            changeColumValues(tableName, colum_data?.colum, e.target.value, 'auto');
+            // setColData({ ...colData, auto: e.target.value });
           }} placeholder="Auto incerent"
-          list="auto" name="auto" id="auto"
+        //list="auto" name="auto" id="auto"
         />
         <datalist id="auto">
           <option value="Auto increment" />
@@ -166,14 +277,52 @@ export default function D() {
       <div>
         <button
           style={{ backgroundColor: 'red' }}
-          onClick={() => { removeLeftColumWhenClick(colum_data); }}>x</button>
+          onClick={() => { removeLeftColumWhenClick(tableName, colum_data); }}>x</button>
       </div>
     </div>
   );
-  const addNewColum = () => {
-    var arr = addColumArr; arr.push({ colum: `col ${addColumArr?.length + 1}`, type: 'Int', auto: 'Non', indenty: 'Auto Increment' });
+  const addNewColum = (item) => {
+    var arr = addColumArr;
+    arr.push({ colum: `col ${addColumArr?.length + 1}`, type: 'Int', auto: 'Non', indenty: 'Auto Increment' });
     setAddColumArr(arr);
+
+    //whole Data with Tables
+    var arWholeTblData = wholeTblData;
+    var tableName = item;
+    console.log('clicked table name for add col : ', tableName);
+
+    //[{{tbn:[]},{tbn2:[]}}]
+    var clickedTableDataObject = arWholeTblData.find((ele) => {
+      return ele[tableName];
+    });
+
+    var arrColums = clickedTableDataObject[`${tableName}`];//{tbn:[]}
+    var addNCol = { colum: `col ${arrColums?.length + 1}`, type: '', N: '', indenty: '', auto: '', col_id: (Math.random(10000)) };
+    arrColums.push(addNCol);
+
+    //console.log('arr', arrColums);
+    //console.log("end------", tableName);
+
+    var obj = {};
+    obj[`${tableName}`] = arrColums;//{tbn : [{}]}
+    var currentTableNameDataIndex = arWholeTblData.findIndex((ele) => {
+      return ele[tableName];
+    });
+    //console.log('withoutCurrentTableNameDataIndex', withoutCurrentTableNameData);
+    //append updated colums to specific table 
+    arWholeTblData[currentTableNameDataIndex] = obj;
+    setWholeTblData(arWholeTblData);
+    console.log('wholeTblData', wholeTblData);
+
     setChange(Math.random(200));
+  }
+  const accessSpecificTableColums = (tableName) => {
+    var arr = wholeTblData;
+    var clickedTableDataObject = arr.find((ele) => {
+      return ele[tableName];
+    });
+    var arrColums = clickedTableDataObject[`${tableName}`];//{tbn:[]}
+    return arrColums;
   }
   const tableCols = (item) => (
     <div
@@ -194,10 +343,19 @@ export default function D() {
             style={{ backgroundColor: 'red' }}
             onClick={() => { removeLeftTableWhenClick(item); }}>X</button>
         </div>
-        <>{addColumArr.map((columdata) => sampleColume(columdata))}</>
+        <>
+          {
+            /*addColumArr.map((columdata) => sampleColume(item, columdata))*/
+          }
+        </>
+        <>
+          {
+            accessSpecificTableColums(item).map((columdata) => sampleColume(item, columdata))
+          }
+        </>
         <div>
           <button>Add Index</button>
-          <button onClick={() => { addNewColum(); }}>Add Colum</button>
+          <button onClick={() => { addNewColum(item); }}>Add Colum</button>
 
         </div>
       </div>
@@ -221,6 +379,10 @@ export default function D() {
               }}
                 placeholder="table 1" />
               <button onClick={() => { addTable(tblName); }}>Add Table</button>
+            </div>
+            <br />
+            <div style={{ display: 'block', }}>
+              <button>Export As SQL</button> <button>Import SQL</button>
             </div>
 
             {/** Table List Colums */}
