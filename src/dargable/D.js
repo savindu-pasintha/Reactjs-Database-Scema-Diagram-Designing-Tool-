@@ -11,10 +11,8 @@ export default function D() {
   });
   const [addColumArr, setAddColumArr] = useState([{
     colum: 'A', type: 'varchar', N: 'Non', indenty: 'primarykey', auto: 'none'
-  }, {
-    colum: 'B', type: 'String', N: '', indenty: '', auto: ''
   },]);
- // const [update, setUpdate] = useEffect(false);
+  const [change, setChange] = useState('1');
   //{table:name,colums:{}}
 
   //Right side Diagram onclick ->load the table to screen
@@ -31,7 +29,7 @@ export default function D() {
           height: '30px',
           margin: '0px',
         }}
-        onClick={() => { alert("abc") }}
+        onClick={() => { alert(columdata); }}
       ><p>{columdata?.colum}......................{columdata?.type}</p></button>
     </div>
   </>);
@@ -54,17 +52,52 @@ export default function D() {
     var arr = tblNameList;
     arr.push(tableName);
     setTblNameList(arr);
+    console.log('tblNameList', tblNameList);
+    setChange(Math.random(200));
   }
   //Left side editable box
-  const sampleColume = (columdata) => (
+  const removeLeftTableWhenClick = (table) => {
+    var arr = tblNameList.filter(function (ele) { return ele != table; });
+    setTblNameList(arr);
+    alert(`Delete Table : ${table}`);
+    setChange(Math.random(200));
+  }
+  const removeLeftColumWhenClick = (col) => {
+    var arr = addColumArr.filter(function (ele) {
+      var { colum, type, N, indenty, auto } = ele;
+      if (colum != col?.colum) {
+        return col;
+      }
+    });
+    setAddColumArr(arr);
+    alert(`Delete Colum : ${col?.colum}`);
+    setChange(Math.random(200));
+  }
+  const changeColumValues = (colum_name, value) => {
+    var arr = addColumArr;
+    arr = addColumArr.filter((ele) => {
+      if (colum_name == ele.colum) {
+        ele.colum = value;
+        return ele;
+      }
+    });
+    // setAddColumArr(arr);
+    setChange(Math.random(200));
+    //setColData({ ...colData, colum: e.target.value });
+  }
+  const sampleColume = (colum_data) => (
     <div style={{ paddingTop: "5px", paddingBottom: "2px" }}>
       <div>
-        <input onChange={(e) => { setColData({ ...colData, colum: e.target.value }); }} placeholder="Colum name" />
+        <input
+          value={colum_data?.colum}
+          onChange={(e) => { changeColumValues(colum_data?.colum, e.target.value); }} placeholder="Colum name" />
       </div>
       <div>
-        <input onChange={(e) => {
-          setColData({ ...colData, type: e.target.value });
-        }} placeholder="Data type"
+        <input
+          value={colum_data?.type}
+          onChange={(e) => {
+            setColData({ ...colData, type: e.target.value });
+          }} placeholder="Data type"
           list="browsers" name="browser" id="browser"
         />
         <datalist id="browsers">
@@ -76,9 +109,11 @@ export default function D() {
         </datalist>
       </div>
       <div>
-        <input onChange={(e) => {
-          setColData({ ...colData, N: e.target.value });
-        }} placeholder="N/NN"
+        <input
+          value={colum_data?.N}
+          onChange={(e) => {
+            setColData({ ...colData, N: e.target.value });
+          }} placeholder="N/NN"
           list="nn" name="nn" id="nn"
         />
         <datalist id="nn">
@@ -87,9 +122,11 @@ export default function D() {
         </datalist>
       </div>
       <div>
-        <input onChange={(e) => {
-          setColData({ ...colData, indenty: e.target.value });
-        }} placeholder="Identity"
+        <input
+          value={colum_data?.indenty}
+          onChange={(e) => {
+            setColData({ ...colData, indenty: e.target.value });
+          }} placeholder="Identity"
           list="pk" name="pk" id="pk"
         />
         <datalist id="pk">
@@ -98,9 +135,11 @@ export default function D() {
         </datalist>
       </div>
       <div>
-        <input onChange={(e) => {
-          setColData({ ...colData, auto: e.target.value });
-        }} placeholder="Auto incerent"
+        <input
+          value={colum_data?.auto}
+          onChange={(e) => {
+            setColData({ ...colData, auto: e.target.value });
+          }} placeholder="Auto incerent"
           list="auto" name="auto" id="auto"
         />
         <datalist id="auto">
@@ -109,31 +148,37 @@ export default function D() {
         </datalist>
       </div>
       <div>
-        <button onClick={() => { alert(`Delete Colum : ${columdata?.colum}`); }}>x</button>
+        <button
+          style={{ backgroundColor: 'red' }}
+          onClick={() => { removeLeftColumWhenClick(colum_data); }}>x</button>
       </div>
     </div>
   );
+  const addNewColum = () => {
+    var arr = addColumArr; arr.push({ colum: `col ${addColumArr?.length + 1}`, type: 'Int', auto: 'Non', indenty: 'Auto Increment' });
+    setAddColumArr(arr);
+    setChange(Math.random(200));
+  }
   const tableCols = (item) => (
     <div>
       <div>
         <div>
           <h>Table Name : {item}</h>{' '}
-          <button onClick={() => { alert(`Delete Table : ${item}`); }}>X</button>
+          <button
+            style={{ backgroundColor: 'red' }}
+            onClick={() => { removeLeftTableWhenClick(item); }}>X</button>
         </div>
         <>{addColumArr.map((columdata) => sampleColume(columdata))}</>
         <div>
           <button>Add Index</button>
-          <button onClick={() => {
-            var arr = addColumArr; arr.push({ colum: "c1", type: 't1' });
-            setAddColumArr(arr);
-          }}>Add Colum</button>
+          <button onClick={() => { addNewColum(); }}>Add Colum</button>
+
         </div>
       </div>
     </div>
   );
-
-  useEffect(() => { }, [tblNameList, addColumArr
-  ]);
+  //tblNameList, addColumArr, 
+  useEffect(() => { console.log("useEffect"); }, [change]);
 
   return (
     <div style={{ width: '100%', display: 'block' }}>
@@ -141,23 +186,32 @@ export default function D() {
         <div style={{ width: '50%', display: 'flex', backgroundColor: "white" }}>
           {/** Table Add */}
           <div style={{ display: 'block' }}>
-            <input onChange={(event) => { setTblName(event.target.value); }} placeholder="table 1" />
+            <input onChange={(event) => {
+              setTblName(event.target.value);
+              //setChange(true ? false : true); 
+            }}
+              placeholder="table 1" />
             <button onClick={() => { addTable(tblName); }}>Add Table</button>
           </div>
           {/** Table List Colums */}
           <br />
           <div style={{ display: 'block' }}>
             {
-              tblNameList.map((item) => {
-                return (
-                  <div
-                    style={{
-                      height: 'auto', padding: '10px',
-                      display: 'block', border: '1px solid black'
-                    }}>
-                    <div> {tableCols(item)}</div>
-                  </div>)
-              })
+              <>
+                {
+                  tblNameList.map((item) => {
+                    return (
+                      <div
+                        style={{
+                          height: 'auto', padding: '10px',
+                          display: 'block', border: '1px solid black'
+                        }}>
+                        <div> {tableCols(item)}</div>
+                      </div>)
+                  })
+
+                }
+              </>
             }
           </div>
         </div>
